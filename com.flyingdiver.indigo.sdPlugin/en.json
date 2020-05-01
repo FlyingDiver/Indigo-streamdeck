@@ -1,0 +1,11 @@
+{
+  "Description": "Connects the StreamDeck to the Indigo home automation system", 
+  "Name": "Indigo Bridge", 
+  "Category": "Indigo", 
+  "com.flyingdiver.indigo.keypress": {
+      "Name": "Button Press", 
+      "Tooltip": "Send keyUp and keyDown events to Indigo", 
+  },
+  "Localization": {
+  }
+}
