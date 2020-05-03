@@ -1,14 +1,7 @@
+
 /* global addDynamicStyles, $SD, Utils */
 /* eslint-disable no-extra-boolean-cast */
 /* eslint-disable no-else-return */
-
-/**
- * This example contains a working Property Inspector, which already communicates
- * with the corresponding plugin throug settings and/or direct messages.
- * If you want to use other control-types, we recommend copy/paste these from the
- * PISamples demo-library, which already contains quite some example DOM elements
- */
-
 
 /**
  * First we declare a global variable, which change all elements behaviour
@@ -18,7 +11,7 @@
  * or while their value changes 'onchange'.
  */
 
-var onchangeevt = 'onchange'; // 'oninput';
+var onchangeevt = 'onchange'; // or 'oninput';
 
 /**
  * cache the static SDPI-WRAPPER, which contains all your HTML elements.
@@ -155,7 +148,7 @@ const updateUI = (pl) => {
 
 $SD.on('piDataChanged', (returnValue) => {
 
-    console.log('%c%s', 'color: white; background: blue}; font-size: 15px;', 'piDataChanged');
+    console.log('piDataChanged');
     console.log(returnValue);
     
     if (returnValue.key === 'clickme') {

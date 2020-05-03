@@ -13,13 +13,13 @@
     },
     {
       "Icon": "images/indigoActionIcon", 
-      "Name": "Action Group", 
+      "Name": "Button Press", 
       "States": [
         {
           "Image": "images/indigoActionIcon"
         }
       ], 
-      "Tooltip": "Execute an Indigo action group", 
+      "Tooltip": "Execute Indigo Action Group", 
       "UUID": "com.flyingdiver.indigo.actiongroup"
     }
   ], 

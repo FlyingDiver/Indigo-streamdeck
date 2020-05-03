@@ -1,3 +1,14 @@
 <?xml version="1.0"?>
 <Devices>
+    <Device type="sensor" id="sdButton">
+        <Name>StreamDeck Button</Name>
+        <ConfigUI>
+            <Field type="textfield" id="context" hidden="true" />  
+            <Field type="textfield" id="device" hidden="true" />  
+            <Field id="address" type="menu">
+                <Label>Button Coordinates:</Label>
+                <List class="self" filter="" method="availableButtonList"/>
+            </Field>            
+        </ConfigUI>
+    </Device>
 </Devices>
