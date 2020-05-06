@@ -23,10 +23,10 @@ function connected(jsn) {
     $SD.on('com.flyingdiver.indigo.keypress.propertyInspectorDidAppear', (jsonObj) => action.propertyInspectorDidAppear(jsonObj));
     $SD.on('com.flyingdiver.indigo.keypress.propertyInspectorDidDisappear', (jsonObj) => action.propertyInspectorDidDisappear(jsonObj));
 
-    $SD.on('com.flyingdiver.indigo.keypress.deviceDidConnect', (jsonObj) => action.deviceDidConnect(jsonObj));
-    $SD.on('com.flyingdiver.indigo.keypress.deviceDidDisconnect', (jsonObj) => action.deviceDidDisconnect(jsonObj));
-
     $SD.on('com.flyingdiver.indigo.keypress.sendToPlugin', (jsonObj) => action.sendToPlugin(jsonObj));
+
+    $SD.on('deviceDidConnect', (jsonObj) => action.deviceDidConnect(jsonObj));
+    $SD.on('deviceDidDisconnect', (jsonObj) => action.deviceDidDisconnect(jsonObj));
 
 };
 
@@ -44,7 +44,8 @@ function connectIndigo() {
     }
 
     // Get the host and port from the settings
-    websocket = new ReconnectingWebSocket('ws://' + settings["indigo-host"] + ':' + settings["indigo-port"] );
+//    websocket = new ReconnectingWebSocket('ws://' + settings["indigo-host"] + ':' + settings["indigo-port"] );
+    websocket = new ReconnectingWebSocket('ws://127.0.0.1:9001');
     wsIndigo = websocket;
 
     websocket.onopen = function (evt) {
