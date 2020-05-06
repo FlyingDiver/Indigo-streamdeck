@@ -13,24 +13,24 @@
     },
     {
       "Icon": "images/indigoActionIcon", 
-      "Name": "Button Press", 
+      "Name": "Action Group", 
       "States": [
         {
           "Image": "images/indigoActionIcon"
         }
       ], 
-      "Tooltip": "Execute Indigo Action Group", 
+      "Tooltip": "Run an Indigo Action Group", 
       "UUID": "com.flyingdiver.indigo.actiongroup"
     }
   ], 
   "Author": "FlyingDiver", 
-  "CodePath": "index.html", 
+  "CodePath": "plugin/app.html", 
   "Category": "Indigo", 
   "CategoryIcon": "images/indigoCategoryIcon", 
   "Description": "Connects the StreamDeck to the Indigo home automation system", 
   "Icon": "images/indigoIcon", 
   "Name": "Indigo Bridge", 
-  "PropertyInspectorPath": "propertyinspector/index.html", 
+  "PropertyInspectorPath": "pi/pi.html", 
   "SDKVersion": 2,
   "URL": "https://github.com/FlyingDiver/indigo-streamdeck", 
   "Version": "0.0.0",

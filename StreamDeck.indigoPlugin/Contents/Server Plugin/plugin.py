@@ -107,48 +107,47 @@ class Plugin(indigo.PluginBase):
     ####################
 
     def onMessage(self, client, server, received):
-        self.logger.threaddebug("onMessage from client: {}, message: {}".format(client['id'], received))
+        self.logger.threaddebug(u"onMessage from client: {}, message: {}".format(client['id'], received))
         try:
             message = json.loads(received)
         except:
-            self.logger.debug("onMessage received invalid JSON message")
+            self.logger.debug(u"onMessage received invalid JSON message")
             return
             
-        event = message.get('event', None)
-        if not event:
-            self.logger.warning("onMessage no event, message: {}".format(jsonMessage))
+        if not 'message-type' in message:
+            self.logger.warning("onMessage no message-type, message: {}".format(message))
             return
-
-        if event in ['willAppear', 'deviceDidConnect']:
-            self.collectData(message)            
- 
-        action = message.get('action', None)
-        if not action:
-            self.logger.warning("onMessage no action, message: {}".format(jsonMessage))
-            return
+            
+         
+        if message['message-type'] == 'application-info':
+            self.logger.debug(u"onMessage received - application-info: {}".format(message['payload']))
+            for dev in message['payload']['devices']:
+                if safeKey(dev[u'id']) not in self.known_devices:
+                    self.known_devices[safeKey(dev[u'id'])] = dev
         
-        if action == 'com.flyingdiver.indigo.keypress':
-            self.doActionKeypress(event, message)
-           
-        elif action == 'com.flyingdiver.indigo.actiongroup':
-            self.doActionGroup(event, message)
+        elif message['message-type'] in ['will-appear', 'device-connected']:
+            self.collectData(message)
+            
+        elif message['message-type'] in ['key-down', 'key-up']:
+            self.doActionKeypress(message)
+            
+        elif message['message-type'] in ['action-group']:
+            self.doActionGroup(message)
            
         else:
-            self.logger.warning("onMessage unknown action: {}, message: {}".format(action, jsonMessage))
+            self.logger.warning("onMessage unknown message-type: {}, message: {}".format(message['message-type'], message))
         
         
     def onConnect(self, client, server):
-        self.logger.debug("onConnect client: {}".format(client['id']))
+        self.logger.debug(u"onConnect client: {}".format(client['id']))
+        reply = { "status": "connected", "clientID": client['id']}
+        server.send_message(client, json.dumps(reply))
 
     def onClose(self, client, server):
-        self.logger.debug("onClose client: {}".format(client['id']))
+        self.logger.debug(u"onClose client: {}".format(client['id']))
         
         
-    def collectData(self, message):
-        if safeKey(message[u'device']) not in self.known_devices:
-            name = "StreamDeck-{}".format(len(self.known_devices))
-            self.known_devices[safeKey(message[u'device'])] = { 'name': name, 'device': message[u'device']}
-            
+    def collectData(self, message):            
         if safeKey(message[u'context']) not in self.known_buttons:
             button = {}
             button[u'context'] = message[u'context']
@@ -157,8 +156,10 @@ class Plugin(indigo.PluginBase):
             button[u'row']     = message[u'payload'][u'coordinates'][u'row']
             self.known_buttons[safeKey(message[u'context'])] = button
 
-    def doActionKeypress(self, event, message):
-        context = message.get('context', None)
+    def doActionKeypress(self, message):
+        payload = message.get('payload')
+        context = payload.get('context', None)
+        event = payload.get('event', None)
         
         if not context in self.activeButtons:
             self.logger.debug("Unknown button context: {}".format(context))
@@ -174,9 +175,17 @@ class Plugin(indigo.PluginBase):
             self.logger.debug("Unknown button event: {}".format(event))
         
         
-        
-    def doActionGroup(self, event, message):
-        self.logger.debug("doActionGroup: {}, {}".format(event, message))
+    def doActionGroup(self, message):
+        self.logger.debug("doActionGroup: {}".format(message))
+        payload = message.get('payload')
+        try:
+            actiongroup = payload['payload']['settings']['action-group']
+        except:
+            self.logger.debug("doActionGroup: message not formatted properly")
+        else:
+            self.logger.debug("doActionGroup, executing action group '{}'".format(actiongroup))
+            indigo.actionGroup.execute(actiongroup)
+                                    
                                     
     ####################
 
@@ -267,6 +276,13 @@ class Plugin(indigo.PluginBase):
     # Plugin Actions object callbacks
     ########################################
 
+    def setProfileAction(self, pluginAction, brokerDevice, callerWaitingForResult):
+        profile = indigo.activePlugin.substitute(pluginAction.props["profile"])
+        sdDevice = pluginAction.props["device"]
+    
+        # send a JSON message to the client here
+        
+
     def availableButtonList(self, filter="", valuesDict=None, typeId="", targetId=0):
 
         in_use =[]
@@ -284,6 +300,16 @@ class Plugin(indigo.PluginBase):
                 retList.append((address, name))
 
         self.logger.debug("availableButtonList: retList = {}".format(retList))
+        return retList
+
+    def availableDeviceList(self, filter="", valuesDict=None, typeId="", targetId=0):
+
+        retList =[]
+        for key in self.known_devices:
+            device = self.known_devices[key]
+            retList.append((device['id'], device['name']))
+
+        self.logger.debug("availableDeviceList: retList = {}".format(retList))
         return retList
 
     ########################################
