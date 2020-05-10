@@ -124,7 +124,7 @@ class Plugin(indigo.PluginBase):
         self.logger.debug(u"onConnect client: {}".format(client['id']))
         self.activeConnections[client['id']] = client
         
-        reply = { "status": "connected", "clientID": client['id']}
+        reply = { "event": "connected", "clientID": client['id']}
         self.wsServer.send_message(client, json.dumps(reply))
 
     def onClose(self, client, server):
@@ -170,7 +170,6 @@ class Plugin(indigo.PluginBase):
         for dev in message[u'payload'][u'devices']:
             self.logger.debug(u"onMessage applicationInfo Adding/Updating device: {}".format(dev))
 
-            deckKey = safeKey(dev[u'id'])
             deck = {}
             deck[u'id']       = dev[u'id']
             deck[u'name']     = dev[u'name']
@@ -178,26 +177,11 @@ class Plugin(indigo.PluginBase):
             deck[u'rows']     = dev[u'size'][u'rows']
             deck[u'type']     = dev.get(u'type', -1)            
             deck[u'client']   = client['id']            
-            self.known_devices[deckKey] = deck
-
-            if deckKey in self.activeDecks:   # If there's an active Indigo device, update the active state
-                deckDevice = indigo.devices.get(int(self.activeDecks[deckKey]))
-                if not deckDevice:
-                    self.logger.warning("deviceDidConnect invalid Deck DeviceID: {}".format(message))
-                else:            
-                    states_list = []
-                    states_list.append({'key': 'active', 'value': True})
-                    states_list.append({'key': 'name', 'value': deck[u'name']})
-                    states_list.append({'key': 'columns', 'value': deck[u'columns']})
-                    states_list.append({'key': 'rows', 'value': deck[u'rows']})
-                    states_list.append({'key': 'type', 'value': deck[u'type']})
-                    states_list.append({'key': 'clientID', 'value': client['id']})
-                    deckDevice.updateStatesOnServer(states_list)
+            self.registerDeck(deck)
 
     def deviceDidConnect(self, message, client):            
         self.logger.debug(u"onMessage deviceDidConnect Adding/Updating device: {}".format(message))
 
-        deckKey = safeKey(message[u'payload'][u'device'])
         deck = {}
         deck[u'id']       = message[u'payload'][u'device']
         deck[u'name']     = message[u'payload'][u'deviceInfo'][u'name']
@@ -205,21 +189,26 @@ class Plugin(indigo.PluginBase):
         deck[u'rows']     = message[u'payload'][u'deviceInfo'][u'size'][u'rows']
         deck[u'type']     = message[u'payload'][u'deviceInfo'].get(u'type', -1)            
         deck[u'client']   = client['id']            
-        self.known_devices[deckKey] = deck
+        self.registerDeck(deck)
+        
+    def registerDeck(self, deckDict):
+        deckKey = safeKey(deckDict[u'id'])
+        self.known_devices[deckKey] = deckDict
 
         if deckKey in self.activeDecks:   # If there's an active Indigo device, update the active state
             deckDevice = indigo.devices.get(int(self.activeDecks[deckKey]))
             if not deckDevice:
-                self.logger.warning("deviceDidConnect invalid Deck DeviceID: {}".format(message))
+                self.logger.warning("registerDeck invalid Deck DeviceID: {}".format(deckDict))
             else:            
                 states_list = []
-                states_list.append({'key': 'active', 'value': True})
-                states_list.append({'key': 'name', 'value': deck[u'name']})
-                states_list.append({'key': 'columns', 'value': deck[u'columns']})
-                states_list.append({'key': 'rows', 'value': deck[u'rows']})
-                states_list.append({'key': 'type', 'value': deck[u'type']})
-                states_list.append({'key': 'clientID', 'value': client['id']})
+                states_list.append({'key': 'active',  'value': True})
+                states_list.append({'key': 'name',    'value': deckDict[u'name']})
+                states_list.append({'key': 'columns', 'value': deckDict[u'columns']})
+                states_list.append({'key': 'rows',    'value': deckDict[u'rows']})
+                states_list.append({'key': 'type',    'value': deckDict[u'type']})
+                states_list.append({'key': 'clientID','value': deckDict['client']})
                 deckDevice.updateStatesOnServer(states_list)
+
 
     def deviceDidDisconnect(self, message, client):            
         self.logger.debug(u"onMessage deviceDidDisconnect: {}".format(message))
@@ -253,10 +242,10 @@ class Plugin(indigo.PluginBase):
             else:            
                 states_list = []
                 states_list.append({'key': 'visible', 'value': True})
-                states_list.append({'key': 'name', 'value': button[u'name']})
-                states_list.append({'key': 'column', 'value': button[u'column']})
-                states_list.append({'key': 'row', 'value': button[u'row']})
-                states_list.append({'key': 'clientID', 'value': client['id']})
+                states_list.append({'key': 'name',    'value': button[u'name']})
+                states_list.append({'key': 'column',  'value': button[u'column']})
+                states_list.append({'key': 'row',     'value': button[u'row']})
+                states_list.append({'key': 'clientID','value': client['id']})
                 buttonDevice.updateStatesOnServer(states_list)
 
     def buttonWillDisappear(self, message, client):            
@@ -300,31 +289,22 @@ class Plugin(indigo.PluginBase):
         elif actionRequest == u'indigo-variable':
 
             indigo.variable.updateValue(int(eventID), value=messageType)
-                            
                 
-    ####################
+                    
+    ########################################
+    
+    def validateDeviceConfigUi(self, valuesDict, typeId, devId):
+        errorsDict = indigo.Dict()
+        if len(errorsDict) > 0:
+            return (False, valuesDict, errorsDict)
+        return (True, valuesDict)
 
-    def triggerStartProcessing(self, trigger):
-        self.logger.debug("Adding Trigger %s (%d) - %s" % (trigger.name, trigger.id, trigger.pluginTypeId))
-        assert trigger.id not in self.triggers
-        self.triggers[trigger.id] = trigger
-
-    def triggerStopProcessing(self, trigger):
-        self.logger.debug("Removing Trigger %s (%d)" % (trigger.name, trigger.id))
-        assert trigger.id in self.triggers
-        del self.triggers[trigger.id]
-
-    def triggerCheck(self, device):
-
-        for triggerId, trigger in sorted(self.triggers.iteritems()):
-            self.logger.debug("Checking Trigger %s (%s), Type: %s" % (trigger.name, trigger.id, trigger.pluginTypeId))
-
-
-
-
+            
+                
     ########################################
     # Called for each enabled Device belonging to plugin
-    #
+    ########################################
+
     def deviceStartComm(self, device):
         self.logger.info(u"{}: Starting Device".format(device.name))
 
@@ -344,63 +324,46 @@ class Plugin(indigo.PluginBase):
         elif device.deviceTypeId == "sdButton":
             self.activeButtons[device.address] = device.id
                                  
-
-    ########################################
-    # Terminate communication with servers
-    #
+                                 
     def deviceStopComm(self, device):
         self.logger.info(u"{}: Stopping Device".format(device.name))
+        if device.deviceTypeId == "sdDevice":
+            del self.activeDecks[device.id]
+        elif device.deviceTypeId == "sdButton":
+            del self.activeButtons[device.id]
 
 
-    ########################################
-    def validateDeviceConfigUi(self, valuesDict, typeId, devId):
-        errorsDict = indigo.Dict()
-        if len(errorsDict) > 0:
-            return (False, valuesDict, errorsDict)
-        return (True, valuesDict)
-
-    ########################################
-    def validateActionConfigUi(self, valuesDict, typeId, devId):
-        errorsDict = indigo.Dict()
-        try:
-            pass
-        except:
-            pass
-        if len(errorsDict) > 0:
-            return (False, valuesDict, errorsDict)
-        return (True, valuesDict)
 
     ########################################
     # Plugin Actions object callbacks
     ########################################
 
-    def setProfileAction(self, pluginAction, brokerDevice, callerWaitingForResult):
-        profile = indigo.activePlugin.substitute(pluginAction.props["profile"])
-        sdDevice = pluginAction.props["device"]
-    
-        # this needs both the deck ID 'device' and the socket client identifier, as there could be multiples of each.
-    
-        # send a JSON message to the client here
-        message = {
-            "event": "switchToProfile",
-            "context": opaqueValue,
-            "device": opaqueValue,
-            "payload": {
-                "profile": profile
-            }
-        }
-        #self.wsServer.send_message(client, json.dumps(message))
+#     def setProfileAction(self, pluginAction, deckDevice, callerWaitingForResult):
+#         self.logger.debug("setProfileAction: pluginAction = {}".format(pluginAction))
+#         self.logger.debug("setProfileAction: deckDevice = {} ({})".format(deckDevice, type(deckDevice)))
+#         
+#         profile = indigo.activePlugin.substitute(pluginAction.props["profile"])
+#         deckDeviceID = pluginAction.props["device"]
+#         deckDevice = indigo.devices[]
+#         socketClient = self.activeConnections[]
+#     
+#         message = {
+#             "event": "switchToProfile",
+#             "profile": profile
+#         }
+#         self.wsServer.send_message(socketClient, json.dumps(message))
         
 
-    def availableDeviceList(self, filter="", valuesDict=None, typeId="", targetId=0):
+    def availableDeckList(self, filter="", valuesDict=None, typeId="", targetId=0):
 
         retList =[]
         for key in self.known_devices:
             device = self.known_devices[key]
             retList.append((device['id'], device['name']))
 
-        self.logger.debug("availableDeviceList: retList = {}".format(retList))
+        self.logger.debug("availableDeckList: retList = {}".format(retList))
         return retList
+
 
     def availableButtonList(self, filter="", valuesDict=None, typeId="", targetId=0):
 
@@ -420,9 +383,20 @@ class Plugin(indigo.PluginBase):
     # doesn't do anything, just needed to force other menus to dynamically refresh
     def menuChanged(self, valuesDict = None, typeId = None, devId = None):
         return valuesDict
+
+    def validateActionConfigUi(self, valuesDict, typeId, devId):
+        errorsDict = indigo.Dict()
+        try:
+            pass
+        except:
+            pass
+        if len(errorsDict) > 0:
+            return (False, valuesDict, errorsDict)
+        return (True, valuesDict)
+
     
     ########################################
-    # Menu Methods
+    # Menu Command Methods
     ########################################
 
     def dumpKnownDevices(self):
@@ -436,3 +410,25 @@ class Plugin(indigo.PluginBase):
     def purgeKnownDevices(self):
         self.known_devices = {}
         self.known_buttons = {}
+
+
+    ########################################
+    # Event/Trigger Methods
+    ########################################
+
+    def triggerStartProcessing(self, trigger):
+        self.logger.debug("Adding Trigger %s (%d) - %s" % (trigger.name, trigger.id, trigger.pluginTypeId))
+        assert trigger.id not in self.triggers
+        self.triggers[trigger.id] = trigger
+
+    def triggerStopProcessing(self, trigger):
+        self.logger.debug("Removing Trigger %s (%d)" % (trigger.name, trigger.id))
+        assert trigger.id in self.triggers
+        del self.triggers[trigger.id]
+
+    def triggerCheck(self, device):
+
+        for triggerId, trigger in sorted(self.triggers.iteritems()):
+            self.logger.debug("Checking Trigger %s (%s), Type: %s" % (trigger.name, trigger.id, trigger.pluginTypeId))
+
+
