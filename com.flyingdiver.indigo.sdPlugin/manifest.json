@@ -21,7 +21,7 @@
   "PropertyInspectorPath": "pi/pi.html", 
   "SDKVersion": 2,
   "URL": "https://github.com/FlyingDiver/indigo-streamdeck", 
-  "Version": "0.0.1",
+  "Version": "0.0.2",
   "OS": [
     {
         "Platform": "mac", 
