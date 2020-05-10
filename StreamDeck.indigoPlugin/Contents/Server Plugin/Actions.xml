@@ -1,4 +1,17 @@
 <?xml version="1.0"?>
 <Actions>
 	<SupportURL>http://forums.indigodomo.com/viewforum.php?f=213</SupportURL>
+	<Action id="setProfile">
+        <Name>Set Device Profile</Name>
+        <CallbackMethod>setProfileAction</CallbackMethod>
+        <ConfigUI>
+            <Field id="profile" type="textfield">
+                <Label>Profile Name:</Label>
+            </Field>
+            <Field id="device" type="menu">
+                <Label>Device:</Label>
+                <List class="self" filter="" method="availableDeviceList"/>
+            </Field>            
+        </ConfigUI>
+    </Action>
 </Actions>
