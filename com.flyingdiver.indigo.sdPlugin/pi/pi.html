@@ -7,14 +7,23 @@
         <script src="pi.js"></script>
     </head>
     <body>
-        <div class="sdpi-wrapper hidden">
+        <div class="sdpi-wrapper">
             <div class="sdpi-item">
                 <div class="sdpi-item-label">Indigo Server</div>
                 <input class="sdpi-item-value" id="indigoAddress" value="" onchange="updateIndigoAddress()" placeholder="127.0.0.1:9001">
             </div>
+           <div class="sdpi-item">
+                <div class="sdpi-item-label">Indigo Action</div> 
+                <select class="sdpi-item-value select"  id="actionRequest" onchange="updateAction()">
+                   <option value="indigo-device-momentary">Momentary Indigo Device</option>
+                   <option value="indigo-device-toggle">Toggle Indigo Device</option>
+                   <option value="indigo-variable">Indigo Variable</option>
+                   <option value="action-group">Action Group</option>
+                </select> 
+           </div>
             <div class="sdpi-item">
-                <div class="sdpi-item-label">Event ID</div>
-                <input class="sdpi-item-value" id="eventID" value="" onchange="updateEventID()" placeholder="(Optional) Group or Device ID">
+                <div class="sdpi-item-label">Action Info</div>
+                <input class="sdpi-item-value" id="eventID" value="" onchange="updateAction()" placeholder="(Optional) Group or Device ID">
             </div>
         </div>
     </body>

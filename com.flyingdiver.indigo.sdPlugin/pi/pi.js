@@ -35,47 +35,39 @@ function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegist
     websocket.onmessage = function(evt)            // Received message from Stream Deck
     {
         const jsonObj = JSON.parse(evt.data);
-        console.log("websocket.onmessage: ", jsonObj);
+        console.log("websocket.onmessage:", jsonObj.event, jsonObj);
 
-        if (jsonObj.event === 'didReceiveSettings') {
+        if (jsonObj.event === 'didReceiveSettings') 
+        {
             const settings = jsonObj.payload.settings;
-            console.log("websocket.onmessage didReceiveSettings: settings = ", payload);
+            console.log("websocket.onmessage: didReceiveSettings, settings = ", settings);
 
+            document.getElementById('actionRequest').value = settings.actionRequest;
+            if(document.getElementById('actionRequest').value == "undefined") {
+                document.getElementById('actionRequest').value = "";
+            }
+            
             document.getElementById('eventID').value = settings.eventID;
-
             if(document.getElementById('eventID').value == "undefined") {
                 document.getElementById('eventID').value = "";
             }
         }
-        if (jsonObj.event === 'didReceiveGlobalSettings') {
+        else if (jsonObj.event === 'didReceiveGlobalSettings') 
+        {
             const settings = jsonObj.payload.settings;
-            console.log("websocket.onmessage didReceiveGlobalSettings: settings = ", payload);
+            console.log("websocket.onmessage: didReceiveGlobalSettings, settings = ", settings);
 
             document.getElementById('indigoAddress').value = settings.indigoAddress;
 
             if(document.getElementById('indigoAddress').value == "undefined") {
                 document.getElementById('indigoAddress').value = "";
             }
-
-            const el = document.querySelector('.sdpi-wrapper');
-            el && el.classList.remove('hidden');
+        }
+        else if (jsonObj.event === 'sendToPlugin') 
+        {
+            console.log('websocket.onmessage sendToPlugin: payload = ', jsonObj.payload);
         }
     };
-}
-
-function updateEventID() 
-{
-    if (websocket && (websocket.readyState === 1)) {
-        let payload = {};
-        payload.eventID = document.getElementById('eventID').value;
-        const json = {
-            "event": "setSettings",
-            "context": uuid,
-            "payload": payload
-        };
-        websocket.send(JSON.stringify(json));
-        console.log("updateEventID: ", json);
-    }    
 }
 
 function updateIndigoAddress() 
@@ -92,3 +84,20 @@ function updateIndigoAddress()
         console.log("updateIndigoAddress: ", json);
     }    
 }
+
+function updateAction() 
+{
+    if (websocket && (websocket.readyState === 1)) {
+        let payload = {};
+        payload.actionRequest = document.getElementById('actionRequest').value;
+        payload.eventID = document.getElementById('eventID').value;
+        const json = {
+            "event": "setSettings",
+            "context": uuid,
+            "payload": payload
+        };
+        websocket.send(JSON.stringify(json));
+        console.log("updateAction: ", json);
+    }    
+}
+

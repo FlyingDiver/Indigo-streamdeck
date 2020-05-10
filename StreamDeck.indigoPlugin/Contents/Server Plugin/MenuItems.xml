@@ -4,6 +4,10 @@
     	<Name>Write Known Device List to Log</Name>
     	<CallbackMethod>dumpKnownDevices</CallbackMethod>
     </MenuItem>
+    <MenuItem id="dumpActiveDevices">
+    	<Name>Write Active Device List to Log</Name>
+    	<CallbackMethod>dumpActiveDevices</CallbackMethod>
+    </MenuItem>
     <MenuItem id="purgeKnownDevices">
     	<Name>Purge Known Device List</Name>
     	<CallbackMethod>purgeKnownDevices</CallbackMethod>

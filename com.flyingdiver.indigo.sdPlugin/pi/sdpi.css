@@ -186,7 +186,6 @@ html {
     -moz-appearance: none;
     -o-appearance: none;
     appearance: none;
-    background: url(caret.svg) no-repeat 97% center;
   }
   
   label.sdpi-file-label,

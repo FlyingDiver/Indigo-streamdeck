@@ -2,30 +2,18 @@
   "Actions": [
     {
       "Icon": "images/indigoActionIcon", 
-      "Name": "Button Press", 
+      "Name": "Indigo Action", 
       "States": [
         {
           "Image": "images/indigoActionIcon"
         }
       ], 
-      "Tooltip": "Send keyUp and keyDown events to Indigo", 
-      "UUID": "com.flyingdiver.indigo.keypress"
-    },
-    {
-      "Icon": "images/indigoActionIcon", 
-      "Name": "Action Group", 
-      "States": [
-        {
-          "Image": "images/indigoActionIcon"
-        }
-      ], 
-      "Tooltip": "Run an Indigo Action Group", 
-      "UUID": "com.flyingdiver.indigo.actiongroup"
+      "Tooltip": "Send action request to Indigo", 
+      "UUID": "com.flyingdiver.indigo.action"
     }
   ], 
   "Author": "FlyingDiver", 
   "CodePath": "plugin/app.html", 
-  "Category": "Indigo", 
   "CategoryIcon": "images/indigoCategoryIcon", 
   "Description": "Connects the StreamDeck to the Indigo home automation system", 
   "Icon": "images/indigoIcon", 

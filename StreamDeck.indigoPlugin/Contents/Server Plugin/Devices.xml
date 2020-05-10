@@ -1,14 +1,83 @@
 <?xml version="1.0"?>
 <Devices>
-    <Device type="sensor" id="sdButton">
-        <Name>StreamDeck Button</Name>
+    <Device id="sdDevice" type="custom">
+        <Name>StreamDeck Device</Name>
         <ConfigUI>
-            <Field type="textfield" id="context" hidden="true" />  
+            <Field type="textfield" id="id" hidden="true" />  
             <Field type="textfield" id="device" hidden="true" />  
             <Field id="address" type="menu">
-                <Label>Button Coordinates:</Label>
-                <List class="self" filter="" method="availableButtonList"/>
-            </Field>            
+                <Label>Stream Deck:</Label>
+                <List class="self" method="availableDeviceList" dynamicReload="true"/>
+                <CallbackMethod>menuChanged</CallbackMethod>
+            </Field>
         </ConfigUI>
+        <States>
+            <State id="active">
+                <ValueType boolType="YesNo">Boolean</ValueType>
+                <TriggerLabel>Button is Visible</TriggerLabel>
+                <ControlPageLabel>Button is Visible</ControlPageLabel>
+            </State>
+            <State id="name">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Deck Name</TriggerLabel>
+                <ControlPageLabel>Deck Name</ControlPageLabel>
+            </State>
+            <State id="columns">
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Columns</TriggerLabel>
+                <ControlPageLabel>Columns</ControlPageLabel>
+            </State>
+            <State id="rows">
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Rows</TriggerLabel>
+                <ControlPageLabel>Rows</ControlPageLabel>
+            </State>
+            <State id="type">
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Deck Type</TriggerLabel>
+                <ControlPageLabel>Deck Type</ControlPageLabel>
+            </State>
+            <State id="clientID">
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Socket client</TriggerLabel>
+                <ControlPageLabel>Socket client</ControlPageLabel>
+            </State>
+        </States>
+        <UiDisplayStateId>active</UiDisplayStateId>
+    </Device>
+    <Device id="sdButton" type="sensor">
+        <Name>StreamDeck Button</Name>
+        <ConfigUI>
+            <Field type="textfield" id="id" hidden="true" />  
+            <Field type="textfield" id="device" hidden="true" />  
+            <Field id="address" type="menu">
+                <Label>Stream Deck Button:</Label>
+                <List class="self" method="availableButtonList" dynamicReload="true"/>
+                <CallbackMethod>menuChanged</CallbackMethod>
+            </Field>
+        </ConfigUI>
+        <States>
+            <State id="visible">
+                <ValueType boolType="YesNo">Boolean</ValueType>
+                <TriggerLabel>Button is Visible</TriggerLabel>
+                <ControlPageLabel>Button is Visible</ControlPageLabel>
+            </State>
+            <State id="column">
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Column</TriggerLabel>
+                <ControlPageLabel>Column</ControlPageLabel>
+            </State>
+            <State id="row">
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Row</TriggerLabel>
+                <ControlPageLabel>Row</ControlPageLabel>
+            </State>
+            <State id="clientID">
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Socket client</TriggerLabel>
+                <ControlPageLabel>Socket client</ControlPageLabel>
+            </State>
+        </States>
+        <UiDisplayStateId>visible</UiDisplayStateId>
     </Device>
 </Devices>
