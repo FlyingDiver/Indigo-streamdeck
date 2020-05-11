@@ -98,7 +98,7 @@ class Plugin(indigo.PluginBase):
             self.wsServer.server_close()
             self.wsServer = None
         try:
-            self.wsServer = WebsocketServer(port, '127.0.0.1')
+            self.wsServer = WebsocketServer(port, '0.0.0.0')
             self.wsServer.set_fn_new_client(self.onConnect)
             self.wsServer.set_fn_client_left(self.onClose)
             self.wsServer.set_fn_message_received(self.onMessage)
