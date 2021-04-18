@@ -1,19 +1,17 @@
 <?xml version="1.0"?>
 <Actions>
 	<SupportURL>http://forums.indigodomo.com/viewforum.php?f=213</SupportURL>
-<!--
-	<Action id="setProfile">
-        <Name>Set Device Profile</Name>
-        <CallbackMethod>setProfileAction</CallbackMethod>
+	<Action id="setButtonIcon">
+        <Name>Set Button Icon</Name>
+        <CallbackMethod>setButtonIcon</CallbackMethod>
         <ConfigUI>
             <Field id="device" type="menu">
-                <Label>Device:</Label>
+                <Label>Stream Deck Device:</Label>
                 <List class="self" filter="" method="availableDeckList"/>
             </Field>            
-            <Field id="profile" type="textfield">
-                <Label>New Profile:</Label>
+            <Field id="buttonIcon" type="textfield">
+                <Label>Button Icon Path:</Label>
             </Field>
         </ConfigUI>
     </Action>
--->
 </Actions>

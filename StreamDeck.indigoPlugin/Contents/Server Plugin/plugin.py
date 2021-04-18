@@ -98,7 +98,7 @@ class Plugin(indigo.PluginBase):
             self.wsServer.server_close()
             self.wsServer = None
         try:
-            self.wsServer = WebsocketServer(port, '0.0.0.0')
+            self.wsServer = WebsocketServer(port, '0.0.0.0')        # bind socket to all interfaces
             self.wsServer.set_fn_new_client(self.onConnect)
             self.wsServer.set_fn_client_left(self.onClose)
             self.wsServer.set_fn_message_received(self.onMessage)
@@ -123,6 +123,7 @@ class Plugin(indigo.PluginBase):
     def onConnect(self, client, server):
         self.logger.debug(u"onConnect client: {}".format(client['id']))
         self.activeConnections[client['id']] = client
+        self.logger.debug(u"onConnect activeConnections: {}".format(self.activeConnections))
         
         reply = { "event": "connected", "clientID": client['id']}
         self.wsServer.send_message(client, json.dumps(reply))
@@ -136,13 +137,13 @@ class Plugin(indigo.PluginBase):
         try:
             message = json.loads(received)
         except:
-            self.logger.warning(u"onMessage received invalid JSON:\n{}".format(received))
+            self.logger.warning(u"onMessage from client {}, invalid JSON:\n{}".format(client['id'], received))
             return
 
         self.logger.threaddebug(u"onMessage from client: {}, message: {}".format(client['id'], message))
             
         if not 'message-type' in message:
-            self.logger.warning("onMessage no message-type, message: {}".format(message))
+            self.logger.warning("onMessage from client {}, no message-type, message: {}".format(client['id'], message))
             return 
     
         if message['message-type'] == 'applicationInfo':                
@@ -338,20 +339,21 @@ class Plugin(indigo.PluginBase):
     # Plugin Actions object callbacks
     ########################################
 
-#     def setProfileAction(self, pluginAction, deckDevice, callerWaitingForResult):
-#         self.logger.debug("setProfileAction: pluginAction = {}".format(pluginAction))
-#         self.logger.debug("setProfileAction: deckDevice = {} ({})".format(deckDevice, type(deckDevice)))
-#         
-#         profile = indigo.activePlugin.substitute(pluginAction.props["profile"])
-#         deckDeviceID = pluginAction.props["device"]
-#         deckDevice = indigo.devices[]
-#         socketClient = self.activeConnections[]
-#     
-#         message = {
-#             "event": "switchToProfile",
-#             "profile": profile
-#         }
-#         self.wsServer.send_message(socketClient, json.dumps(message))
+    def setButtonIcon(self, pluginAction, deckDevice, callerWaitingForResult):
+        self.logger.debug("setButtonIcon: pluginAction = {}".format(pluginAction))
+        
+        profile = indigo.activePlugin.substitute(pluginAction.props["profile"])
+        deckDeviceID = pluginAction.props["device"]
+        deckDict = self.known_devices[safeKey(deckDeviceID)]
+        self.logger.debug("setButtonIcon: deckDict = {}".format(deckDict))
+        socketClient = self.activeConnections[deckDict['client']]
+    
+        message = {
+            "event": "setButtonIcon",
+            "device": deckDeviceID,
+            "profile": profile
+        }
+        self.wsServer.send_message(socketClient, json.dumps(message))
         
 
     def availableDeckList(self, filter="", valuesDict=None, typeId="", targetId=0):

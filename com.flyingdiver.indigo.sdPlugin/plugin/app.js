@@ -19,10 +19,10 @@ function connectElgatoStreamDeckSocket(inPort, inPluginUUID, inRegisterEvent, in
 
     sdWebsocket.onopen = function()           // WebSocket is connected, register the plugin
     {
-        console.log("sdWebsocket.onopen, Sending registration and global settings request");
+        console.log("sdWebsocket.onopen, uuid:", pluginUUID, ". Sending registration and global settings request");
         json = {
             "event": inRegisterEvent,
-            "uuid": inPluginUUID
+            "uuid": pluginUUID
         };
         sdWebsocket.send(JSON.stringify(json));        
  
@@ -150,6 +150,31 @@ function sendToIndigo(jsn) {
 function handleIndigoMessage(jsonObj)
 {
     console.log('handleIndigoMessage: ', jsonObj);
+    
+    if (jsonObj.event == 'setState')
+    {
+        var json = {
+            "event": "setState",
+            "context": jsonObj.context,
+            "payload": {
+                "state": jsonObj.state
+            }
+        };
+        sdWebsocket.send(JSON.stringify(json));
+    }
+    else if (jsonObj.event == 'switchToProfile')
+    {
+        var json = {
+            "event": "switchToProfile",
+            "context": pluginUUID,
+            "device": jsonObj.device,
+            "payload": {
+                "profile": jsonObj.profile
+            }
+        };        
+        console.log('switchToProfile, sending: ', json);
+        sdWebsocket.send(JSON.stringify(json));
+    }
 }
 
 

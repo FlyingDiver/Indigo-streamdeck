@@ -5,7 +5,10 @@
       "Name": "Indigo Action", 
       "States": [
         {
-          "Image": "images/indigoActionIcon"
+          "Image": "images/indigoActionIcon0"
+        },
+        {
+          "Image": "images/indigoActionIcon1"
         }
       ], 
       "Tooltip": "Send action request to Indigo", 
