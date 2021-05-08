@@ -5,10 +5,7 @@
       "Name": "Indigo Action", 
       "States": [
         {
-          "Image": "images/indigoActionIcon0"
-        },
-        {
-          "Image": "images/indigoActionIcon1"
+          "Image": "images/indigoIcon"
         }
       ], 
       "Tooltip": "Send action request to Indigo", 
@@ -16,7 +13,8 @@
     }
   ], 
   "Author": "FlyingDiver", 
-  "CodePath": "plugin/app.html", 
+  "CodePath": "plugin/app.html",
+  "Category": "Indigo", 
   "CategoryIcon": "images/indigoCategoryIcon", 
   "Description": "Connects the StreamDeck to the Indigo home automation system", 
   "Icon": "images/indigoIcon", 
