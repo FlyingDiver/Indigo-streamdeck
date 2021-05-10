@@ -42,6 +42,11 @@ function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegist
             const settings = jsonObj.payload.settings;
             console.log("websocket.onmessage: didReceiveSettings, settings = ", settings);
 
+            document.getElementById('indigoAddress').value = settings.indigoAddress;
+            if(document.getElementById('indigoAddress').value == "undefined") {
+                document.getElementById('indigoAddress').value = "";
+            }
+
             document.getElementById('actionRequest').value = settings.actionRequest;
             if(document.getElementById('actionRequest').value == "undefined") {
                 document.getElementById('actionRequest').value = "";
@@ -57,11 +62,6 @@ function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegist
             const settings = jsonObj.payload.settings;
             console.log("websocket.onmessage: didReceiveGlobalSettings, settings = ", settings);
 
-            document.getElementById('indigoAddress').value = settings.indigoAddress;
-
-            if(document.getElementById('indigoAddress').value == "undefined") {
-                document.getElementById('indigoAddress').value = "";
-            }
         }
         else if (jsonObj.event === 'sendToPlugin') 
         {
@@ -76,7 +76,7 @@ function updateIndigoAddress()
         let payload = {};
         payload.indigoAddress = document.getElementById('indigoAddress').value;
         const json = {
-            "event": "setGlobalSettings",
+            "event": "setSettings",
             "context": uuid,
             "payload": payload
         };
