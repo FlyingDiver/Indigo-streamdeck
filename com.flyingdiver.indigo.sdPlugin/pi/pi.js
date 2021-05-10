@@ -24,12 +24,6 @@ function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegist
             "context": uuid,
         };
         websocket.send(JSON.stringify(json));
-
-        json = {
-            "event": "getGlobalSettings",
-            "context": uuid,
-        };
-        websocket.send(JSON.stringify(json));
     };
 
     websocket.onmessage = function(evt)            // Received message from Stream Deck
@@ -57,12 +51,6 @@ function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegist
                 document.getElementById('eventID').value = "";
             }
         }
-        else if (jsonObj.event === 'didReceiveGlobalSettings') 
-        {
-            const settings = jsonObj.payload.settings;
-            console.log("websocket.onmessage: didReceiveGlobalSettings, settings = ", settings);
-
-        }
         else if (jsonObj.event === 'sendToPlugin') 
         {
             console.log('websocket.onmessage sendToPlugin: payload = ', jsonObj.payload);
@@ -70,25 +58,11 @@ function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegist
     };
 }
 
-function updateIndigoAddress() 
+function updateButton() 
 {
     if (websocket && (websocket.readyState === 1)) {
         let payload = {};
         payload.indigoAddress = document.getElementById('indigoAddress').value;
-        const json = {
-            "event": "setSettings",
-            "context": uuid,
-            "payload": payload
-        };
-        websocket.send(JSON.stringify(json));
-        console.log("updateIndigoAddress: ", json);
-    }    
-}
-
-function updateAction() 
-{
-    if (websocket && (websocket.readyState === 1)) {
-        let payload = {};
         payload.actionRequest = document.getElementById('actionRequest').value;
         payload.eventID = document.getElementById('eventID').value;
         const json = {
@@ -97,7 +71,7 @@ function updateAction()
             "payload": payload
         };
         websocket.send(JSON.stringify(json));
-        console.log("updateAction: ", json);
+        console.log("updateButton: ", json);
     }    
 }
 
