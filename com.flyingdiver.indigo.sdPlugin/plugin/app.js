@@ -1,5 +1,5 @@
 let sdWebsocket = null,
-    indigoWebSocket = null,
+    indigoWebsocket = null,
     pluginUUID = null,
     applicationInfo = null,
     indigoAddress = null,
@@ -27,7 +27,7 @@ function connectElgatoStreamDeckSocket(inPort, inPluginUUID, inRegisterEvent, in
         sdWebsocket.send(JSON.stringify(json));        
  
         json = { 
-            "event": "getGlobalSettings", 
+            "event": "getSettings", 
             "context": pluginUUID
         };
         sdWebsocket.send(JSON.stringify(json));
@@ -68,9 +68,6 @@ function connectElgatoStreamDeckSocket(inPort, inPluginUUID, inRegisterEvent, in
             break;
             
         case "didReceiveSettings":
-            break;
-            
-        case "didReceiveGlobalSettings":
             // if the settings has the address, we can start the connection process
         
             if(jsonObj.payload.settings != null && jsonObj.payload.settings.hasOwnProperty('indigoAddress'))
@@ -78,6 +75,9 @@ function connectElgatoStreamDeckSocket(inPort, inPluginUUID, inRegisterEvent, in
                 indigoAddress = jsonObj.payload.settings["indigoAddress"];
                 connectIndigo();
             };
+            break;
+            
+        case "didReceiveGlobalSettings":
             break;
 
         case "sendToPlugin":
@@ -101,34 +101,34 @@ function connectIndigo() {
         return
     }
 
-    if (indigoWebSocket) {       // connection started
-        console.log('connectIndigo: socket created, readyState = ', indigoWebSocket.readyState );
+    if (indigoWebsocket) {       // connection started
+        console.log('connectIndigo: socket created, readyState = ', indigoWebsocket.readyState );
         return;
     }
     
     console.log('connectIndigo: starting connection, indigoAddress = ', indigoAddress);
-    indigoWebSocket = new ReconnectingWebSocket('ws://' + indigoAddress);
+    indigoWebsocket = new ReconnectingWebSocket('ws://' + indigoAddress);
 
-    indigoWebSocket.onopen = function (evt) {
-        console.log('indigoWebSocket.onopen: readyState = ', indigoWebSocket.readyState, evt);
+    indigoWebsocket.onopen = function (evt) {
+        console.log('indigoWebsocket.onopen: readyState = ', indigoWebsocket.readyState, evt);
         msg = { 
             'message-type': 'applicationInfo', 
             'payload':  applicationInfo
         }
-        indigoWebSocket.send(JSON.stringify(msg)); 
-        console.log('indigoWebSocket.onopen sent: ', msg);
+        indigoWebsocket.send(JSON.stringify(msg)); 
+        console.log('indigoWebsocket.onopen sent: ', msg);
         sendToIndigo(null);     // kick the queue
     };
 
-    indigoWebSocket.onerror = function (evt) {
-        console.log('indigoWebSocket.onerror: ', evt);
+    indigoWebsocket.onerror = function (evt) {
+        console.log('indigoWebsocket.onerror: ', evt);
     };
 
-    indigoWebSocket.onclose = function (evt) {
-        console.log('indigoWebSocket.onclose: ', evt);
+    indigoWebsocket.onclose = function (evt) {
+        console.log('indigoWebsocket.onclose: ', evt);
     };
 
-    indigoWebSocket.onmessage = function (evt) {
+    indigoWebsocket.onmessage = function (evt) {
         handleIndigoMessage(JSON.parse(evt.data))
     };
 };
@@ -140,10 +140,10 @@ function sendToIndigo(jsn) {
         wsQueue.enqueue(jsn);
     }
       
-    while (indigoWebSocket && (indigoWebSocket.readyState == WebSocket.OPEN) && !wsQueue.isEmpty()) {
+    while (indigoWebsocket && (indigoWebsocket.readyState == WebSocket.OPEN) && !wsQueue.isEmpty()) {
         msg = wsQueue.dequeue();
         console.log('sendToIndigo, sending: ', msg);
-        indigoWebSocket.send(JSON.stringify(msg)); 
+        indigoWebsocket.send(JSON.stringify(msg)); 
     }
 }
 
